@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Fish Health & Age Detector (Fun)</title>
+  <link rel="stylesheet" href="style.css" />
+  <!-- jsPDF CDN for creating PDF in-browser -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+  <div class="app">
+    <header>
+      <h1>🐟 Fish Health & Age Detector (Fun)</h1>
+      <p class="subtitle">Upload or drag & drop an image/video — we will "analyze" it automatically (100% for fun).</p>
+    </header>
+
+    <main>
+      <div id="drop-area" class="drop-area">
+        <div class="drop-inner">
+          <p>Drag & Drop an image or video here</p>
+          <p class="small">or</p>
+          <label class="btn-choose">
+            <input id="fileInput" type="file" accept="image/*,video/*" />
+            Choose file
+          </label>
+          <p class="hint">(Supports image or mp4/webm video)</p>
+        </div>
+      </div>
+
+      <div id="preview" class="preview"></div>
+
+      <div id="analysisArea" class="analysis-area hidden">
+        <div id="progressWrap" class="progress-wrap">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="analysisText" class="analysis-text">Waiting to analyze...</div>
+
+        <div id="resultBox" class="result-box hidden">
+          <h2 id="statusTitle"></h2>
+          <p id="ageText"></p>
+          <p id="causeText"></p>
+          <div id="healthSheet" class="health-sheet"></div>
+          <div class="actions">
+            <button id="showPdfBtn">Show Report (simulate download)</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <footer>
+      <small>Fish recognition speed may vary depending on how photogenic your fish is </small>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
