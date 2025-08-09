@@ -9,16 +9,24 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
-  <div class="app">
+  <div class="app fade-in"> <!-- NEW: fade-in class for page load animation -->
     <header>
-      <h1>🐟 Fish Health & Age Detector (Fun)</h1>
+      <h1 class="slide-down">🐟 Fish Health & Age Detector (Fun)</h1> <!-- NEW: slide-down animation -->
       <p class="subtitle">Upload or drag & drop an image/video — we will "analyze" it automatically (100% for fun).</p>
     </header>
+    <div class="bubbles">
+        <!-- You can duplicate spans if you want even more bubbles -->
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+        <span></span><span></span><span></span><span></span><span></span>
+    </div>
+
+
 
     <main>
-      <div id="drop-area" class="drop-area">
+      <div id="drop-area" class="drop-area bounce-hover"> <!-- NEW: bounce-hover effect -->
         <div class="drop-inner">
-          <p>Drag & Drop an image or video here</p>
+          <p>📂 Drag & Drop an image or video here</p>
           <p class="small">or</p>
           <label class="btn-choose">
             <input id="fileInput" type="file" accept="image/*,video/*" />
@@ -28,9 +36,15 @@
         </div>
       </div>
 
-      <div id="preview" class="preview"></div>
+      <div id="preview" class="preview hidden"></div>
 
       <div id="analysisArea" class="analysis-area hidden">
+        <!-- NEW: fun fake AI loader -->
+        <div id="funLoader" class="fun-loader hidden">
+          <div class="spinner"></div>
+          <p id="funLoaderText">Analyzing scales… 🐠</p>
+        </div>
+
         <div id="progressWrap" class="progress-wrap">
           <div id="progressBar" class="progress-bar"></div>
         </div>
@@ -42,14 +56,14 @@
           <p id="causeText"></p>
           <div id="healthSheet" class="health-sheet"></div>
           <div class="actions">
-            <button id="showPdfBtn">Show Report (simulate download)</button>
+            <button id="showPdfBtn" class="fun-btn">📄 Show Report (simulate download)</button>
           </div>
         </div>
       </div>
     </main>
 
-    <footer>
-      <small>Fish recognition speed may vary depending on how photogenic your fish is </small>
+    <footer class="slide-up">
+      <small>🐟 May your fish live long enough to swim into the sequel of this app 🫧</small> <!-- NEW funny footer -->
     </footer>
   </div>
 

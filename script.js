@@ -1,16 +1,13 @@
 // script.js
-// Fun "Fish Health & Age Detector" prototype
-// - drag/drop or file input (image/video)
-// - fake analysis with heuristics + randomness
-// - dark mode + vibrate if "dead"
-// - create PDF via jsPDF and open it (simulate download)
-
-const { jsPDF } = window.jspdf; // from CDN
+const { jsPDF } = window.jspdf;
 
 const dropArea = document.getElementById("drop-area");
 const fileInput = document.getElementById("fileInput");
 const preview = document.getElementById("preview");
+
 const analysisArea = document.getElementById("analysisArea");
+const funLoader = document.getElementById("funLoader"); // FIX: reference loader
+const progressWrap = document.getElementById("progressWrap");
 const progressBar = document.getElementById("progressBar");
 const analysisText = document.getElementById("analysisText");
 const resultBox = document.getElementById("resultBox");
@@ -20,40 +17,42 @@ const causeText = document.getElementById("causeText");
 const healthSheet = document.getElementById("healthSheet");
 const showPdfBtn = document.getElementById("showPdfBtn");
 
-let currentMedia = null; // { type: 'image'|'video', src: dataURL, fileName }
+let currentMedia = null;
 let lastReport = null;
 
-// helper: keywords to infer cause from filename or dataURL label
-const fisherKeywords = ["net","fisher","fishing","rod","hook","boat","fishman","fisherman"];
-const birdKeywords = ["kingfisher","bird","wing","beak","king","kff"];
-const deadIndicators = ["dead","floating","upside","xeyes","x-eye"]; // optional
+const fisherKeywords = ["net", "fisher", "fishing", "rod", "hook", "boat", "fishman", "fisherman"];
+const birdKeywords = ["kingfisher", "bird", "wing", "beak", "king", "kff"];
 
 const ageLabels = [
-  { label:"Newborn", range:[0,0.2] },
-  { label:"Baby", range:[0.2,0.4] },
-  { label:"Young", range:[0.4,0.6] },
-  { label:"Adult", range:[0.6,0.8] },
-  { label:"Old", range:[0.8,0.94] },
-  { label:"About to Die", range:[0.94,1.0] }
+  { label: "Newborn", range: [0, 0.2] },
+  { label: "Baby", range: [0.2, 0.4] },
+  { label: "Young", range: [0.4, 0.6] },
+  { label: "Adult", range: [0.6, 0.8] },
+  { label: "Old", range: [0.8, 0.94] },
+  { label: "About to Die", range: [0.94, 1.0] }
 ];
 
 const healthPhrases = [
-  "Healthy as a sea cucumber 🥒",
-  "Too much plankton binge 🍽️",
-  "Low morale — wants to travel 🚣",
-  "Suffering from fishy gossip 🐠",
-  "Loves dramatic fainting spells 😴",
-  "Has a secret identity crisis 🐟➡️🐬",
-  "Minor scale rash, will be fine!"
+  "Healthy as a sea cucumber",
+  "Too much plankton binge",
+  "Low morale — wants to travel",
+  "Suffering from fishy gossip",
+  "Loves dramatic fainting spells",
+  "Has a secret identity crisis",
+  "Minor scale rash, will be fine"
 ];
 
-// Drag & Drop handlers
+function wait(ms) { return new Promise(r => setTimeout(r, ms)); }
+function sanitizeForPDF(s) {
+  if (!s && s !== "") return "";
+  return String(s).replace(/[^\x09\x0A\x0D\x20-\x7E]/g, "");
+}
+
 dropArea.addEventListener("dragover", (e) => {
   e.preventDefault();
   dropArea.classList.add("dragover");
 });
-dropArea.addEventListener("dragleave", (e) => {
-  e.preventDefault();
+dropArea.addEventListener("dragleave", () => {
   dropArea.classList.remove("dragover");
 });
 dropArea.addEventListener("drop", (e) => {
@@ -63,14 +62,13 @@ dropArea.addEventListener("drop", (e) => {
   if (f) handleFile(f);
 });
 
-// File input
 fileInput.addEventListener("change", (e) => {
   const f = e.target.files && e.target.files[0];
   if (f) handleFile(f);
 });
 
-function handleFile(file){
-  const type = file.type;
+function handleFile(file) {
+  const type = file.type || "";
   const reader = new FileReader();
   reader.onload = (ev) => {
     const dataURL = ev.target.result;
@@ -81,32 +79,31 @@ function handleFile(file){
     } else if (type.startsWith("video/")) {
       showVideoPreview(dataURL);
       currentMedia = { type: "video", src: dataURL, fileName: file.name || "" };
-      // try to capture a frame for PDF thumbnail later
       startAnalysis(true);
     } else {
-      alert("Unsupported file type. Use image or video.");
+      alert("Unsupported file type. Please upload an image or video.");
     }
   };
   reader.readAsDataURL(file);
 }
 
-function showImagePreview(dataURL){
+function showImagePreview(dataURL) {
   preview.innerHTML = `<img id="mediaPreview" src="${dataURL}" alt="fish preview">`;
 }
-
-function showVideoPreview(dataURL){
+function showVideoPreview(dataURL) {
   preview.innerHTML = `<video id="mediaPreview" src="${dataURL}" controls muted playsinline></video>`;
 }
 
-// Start fake analysis
-function startAnalysis(isVideo=false){
+function startAnalysis(isVideo = false) {
   analysisArea.classList.remove("hidden");
+  funLoader.classList.remove("hidden"); // FIX: show loader
+  progressWrap.classList.remove("hidden");
   resultBox.classList.add("hidden");
   progressBar.style.width = "0%";
+  analysisText.style.display = "block";
   analysisText.textContent = "Initializing PondVision™...";
   document.body.classList.remove("dark-mode");
 
-  // animated steps
   const steps = [
     { text: "Calibrating gill sensors...", time: 700 },
     { text: "Reading tail flutter frequency...", time: 800 },
@@ -118,9 +115,8 @@ function startAnalysis(isVideo=false){
   let stepIndex = 0;
   let progress = 0;
 
-  function nextStep(){
-    if(stepIndex >= steps.length){
-      // finish
+  function nextStep() {
+    if (stepIndex >= steps.length) {
       progressBar.style.width = "100%";
       analysisText.textContent = "Finalizing analysis...";
       setTimeout(finalizeAnalysis, 700);
@@ -128,7 +124,6 @@ function startAnalysis(isVideo=false){
     }
     const step = steps[stepIndex];
     analysisText.textContent = step.text;
-    // animate progress with small increments
     const inc = 100 / steps.length;
     animateProgress(progress, progress + inc, step.time);
     progress += inc;
@@ -139,177 +134,225 @@ function startAnalysis(isVideo=false){
   nextStep();
 }
 
-// simple progress animation helper
-function animateProgress(from, to, duration){
+function animateProgress(from, to, duration) {
   const start = performance.now();
-  function tick(now){
-    const t = Math.min(1, (now - start)/duration);
-    const val = from + (to - from)*t;
+  function tick(now) {
+    const t = Math.min(1, (now - start) / duration);
+    const val = from + (to - from) * t;
     progressBar.style.width = val + "%";
-    if(t < 1) requestAnimationFrame(tick);
+    if (t < 1) requestAnimationFrame(tick);
   }
   requestAnimationFrame(tick);
 }
 
-// Finalize - generate fun analysis
-async function finalizeAnalysis(){
-  // heuristics from filename/dataurl
-  const filename = (currentMedia && currentMedia.fileName || "").toLowerCase();
-  const dataURL = currentMedia && currentMedia.src || "";
+function finalizeAnalysis() {
+  const filename = (currentMedia && currentMedia.fileName || "").toLowerCase().trim();
   const rand = Math.random();
 
-  // pick age by weighted randomness (so "About to Die" is rarer)
-  const age = ageLabels.find(a => rand >= a.range[0] && rand < a.range[1]).label;
+  const ageCategory = ageLabels.find(a => rand >= a.range[0] && rand < a.range[1]).label;
+  const exactAge = (Math.random() * 10).toFixed(1);
 
-  // detect cause: check filename heuristics - fake auto-detection
-  let cause = "Natural causes (sad but peaceful)";
+  let cause = "No lethal cause detected";
   let detected = false;
-
-  // if filename contains fisher keywords -> fisherman
-  for(const kw of fisherKeywords){
-    if(filename.includes(kw) || dataURL.includes(kw)){
-      cause = "Caught by fisherman 🎣 — now in fisherman's kitchen (RIP)";
-      detected = true; break;
+  if (filename) {
+    for (const kw of fisherKeywords) {
+      if (filename.includes(kw)) {
+        cause = "Caught by fisherman — likely human-related (RIP)";
+        detected = true;
+        break;
+      }
     }
-  }
-  if(!detected){
-    for(const kw of birdKeywords){
-      if(filename.includes(kw) || dataURL.includes(kw)){
-        cause = "Snatched by a kingfisher 🐦 — swift & elegant (RIP)";
-        detected = true; break;
+    if (!detected) {
+      for (const kw of birdKeywords) {
+        if (filename.includes(kw)) {
+          cause = "Snatched by a bird (kingfisher) — likely predator-related (RIP)";
+          detected = true;
+          break;
+        }
       }
     }
   }
 
-  // if age is "About to Die", increase chance of "dead"/"about to die"
-  let statusText = "Alive and swimming happily 🐟";
+  let statusText = "Alive and swimming happily";
   let isDead = false;
-  if(age === "About to Die"){
-    // 60% show "will die soon", 40% still alive
-    if(Math.random() < 0.6){
-      statusText = "About to die — critical condition 💀";
+
+  if (ageCategory === "About to Die") {
+    if (Math.random() < 0.6) {
+      statusText = "About to die — critical condition";
       isDead = true;
     } else {
-      statusText = "Weak but alive, needs plankton therapy 😅";
+      statusText = "Weak but alive, needs plankton therapy";
     }
-  } else if(age === "Ancient" || age === "Old"){
-    if(Math.random() < 0.25){
-      statusText = "Passed away peacefully 💀";
+  } else if (ageCategory === "Old") {
+    if (Math.random() < 0.12) {
+      statusText = "Passed away peacefully";
       isDead = true;
     } else {
-      statusText = "Old but still kicking (slowly) 🐢→🐟";
+      statusText = "Old but still swimming slowly";
     }
   } else {
-    // younger fish mostly alive
-    if(Math.random() < 0.06) { // tiny chance of sudden death
-      statusText = "Unexpected death (mystery)! 💀";
+    if (Math.random() < 0.03) {
+      statusText = "Unexpected death (mystery)";
       isDead = true;
     }
   }
 
-  // if cause was detected (fisher/bird) and isDead false, we can mark as dead too with higher chance
-  if(detected && !isDead){
-    if(Math.random() < 0.9){ // fisherman/bird likely means gone
+  if (detected && !isDead) {
+    if (Math.random() < 0.7) {
       isDead = true;
-      statusText = (cause.includes("fisherman") ? "Caught by fisherman (now part of dinner) 💀" : "Snatched by kingfisher (gone) 💀");
+      statusText = cause.includes("fisherman") ? "Caught by fisherman (now part of dinner)" : "Snatched by bird (gone)";
     }
   }
 
-  // assemble health sheet
-  const healthLine = healthPhrases[Math.floor(Math.random()*healthPhrases.length)];
+  const healthLine = healthPhrases[Math.floor(Math.random() * healthPhrases.length)];
+
   const healthReport = {
     title: "Fish Health Report (Fun)",
     generatedAt: new Date().toLocaleString(),
-    ageCategory: age,
+    ageCategory,
+    exactAge,
     status: statusText,
     cause: isDead ? cause : "No lethal cause detected",
     notes: healthLine
   };
 
-  // display results
-  statusTitle.textContent = statusText;
-  ageText.textContent = `Age: ${age}`;
+  statusTitle.textContent = healthReport.status;
+  ageText.textContent = `Age: ${healthReport.ageCategory} (${healthReport.exactAge} years)`;
   causeText.textContent = `Cause (inferred): ${healthReport.cause}`;
-  healthSheet.innerHTML = `<strong>Health Note:</strong> ${healthLine}<br><small>Report generated: ${healthReport.generatedAt}</small>`;
+  healthSheet.innerHTML = `<strong>Health Note:</strong> ${healthReport.notes}<br><small>Report generated: ${healthReport.generatedAt}</small>`;
 
   resultBox.classList.remove("hidden");
+  funLoader.classList.add("hidden"); // FIX: hide loader
+  progressWrap.classList.add("hidden");
+  analysisText.style.display = "none";
 
-  // vibrate & dark mode if "dead"
-  if(isDead){
-    try { navigator.vibrate && navigator.vibrate([300,100,200]); } catch(e){}
+  if (isDead) {
+    try { navigator.vibrate && navigator.vibrate([300, 100, 200]); } catch (e) {}
     document.body.classList.add("dark-mode");
   } else {
     document.body.classList.remove("dark-mode");
   }
 
   lastReport = { ...healthReport, media: currentMedia };
-
-  // change analysis text to done
-  analysisText.textContent = "Analysis complete. See results below.";
 }
 
-// PDF generation & "fake download" show
 showPdfBtn.addEventListener("click", async () => {
-  if(!lastReport) return;
-  // show a fake downloading bar / animation
-  analysisText.textContent = "Preparing PDF report...";
-  progressBar.style.width = "0%";
-  animateProgress(0, 45, 600);
-  await wait(650);
-  analysisText.textContent = "Encrypting scales... (joking)";
-  animateProgress(45, 85, 800);
-  await wait(900);
-  analysisText.textContent = "Finalizing file — ready!";
-  animateProgress(85, 100, 400);
-  await wait(500);
-
-  // create PDF via jsPDF
-  const doc = new jsPDF({ unit: 'pt', format: 'a4' });
-  doc.setFontSize(18);
-  doc.text(lastReport.title, 40, 60);
-  doc.setFontSize(11);
-  doc.text(`Generated: ${lastReport.generatedAt}`, 40, 90);
-  doc.setFontSize(13);
-  doc.text(`Age Category: ${lastReport.ageCategory}`, 40, 130);
-  doc.text(`Status: ${lastReport.status}`, 40, 155);
-  doc.text(`Cause (inferred): ${lastReport.cause}`, 40, 180);
-  doc.text(`Notes: ${lastReport.notes}`, 40, 205);
-
-  // Add thumbnail (image) if image exists or if video captured a frame
-  try {
-    if(lastReport.media && lastReport.media.type === "image"){
-      // add image scaled
-      const imgData = lastReport.media.src;
-      doc.addImage(imgData, 'JPEG', 40, 240, 200, 120); // may auto-convert
-    } else if(lastReport.media && lastReport.media.type === "video"){
-      // try to capture a frame from the preview video element (if available)
-      const vid = document.querySelector("#mediaPreview");
-      // draw to canvas
-      const canvas = document.createElement('canvas');
-      canvas.width = 320; canvas.height = 180;
-      const ctx = canvas.getContext('2d');
-      // If video ready, draw current frame
-      try {
-        ctx.drawImage(vid, 0, 0, canvas.width, canvas.height);
-        const thumb = canvas.toDataURL('image/jpeg', 0.8);
-        doc.addImage(thumb, 'JPEG', 40, 240, 200, 120);
-      } catch(e){
-        // fallback: put placeholder text
-        doc.text("Video attached (thumbnail not available)", 40, 260);
-      }
-    }
-  } catch(e){
-    console.warn("Could not add media to PDF", e);
+  if (!lastReport) {
+    alert("Please run an analysis first.");
+    return;
   }
+  analysisArea.classList.remove("hidden");
+  progressWrap.classList.remove("hidden");
+  progressBar.style.width = "0%";
+  analysisText.style.display = "block";
+  analysisText.textContent = "Preparing PDF report...";
 
-  // Simulate open instead of download: create blob and open in new tab
-  const pdfBlob = doc.output('blob');
-  const url = URL.createObjectURL(pdfBlob);
-  window.open(url, '_blank');
+  animateProgress(0, 40, 500);
+  await wait(600);
+  analysisText.textContent = "Finalizing certificate...";
+  animateProgress(40, 100, 600);
+  await wait(650);
 
-  // reset analysis text
-  analysisText.textContent = "PDF shown in a new tab (simulated download).";
+  generatePDFReport(
+    lastReport.ageCategory,
+    lastReport.exactAge,
+    lastReport.status,
+    lastReport.cause,
+    lastReport.notes,
+    lastReport.media && lastReport.media.type === "image" ? lastReport.media.src : null
+  );
+
+  progressWrap.classList.add("hidden");
+  analysisText.style.display = "none";
 });
 
-// small util: wait
-function wait(ms){ return new Promise(r=>setTimeout(r, ms)); }
+function generatePDFReport(ageCategory, exactAge, status, cause, notes, imageData) {
+  const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const pageWidth = doc.internal.pageSize.getWidth();
+
+  const title = "Fish Health Certificate (Fun)";
+  const generated = sanitizeForPDF(`Generated: ${new Date().toLocaleString()}`);
+  const s_age = sanitizeForPDF(`${ageCategory} (${exactAge} years)`);
+  const s_status = sanitizeForPDF(status);
+  const s_cause = sanitizeForPDF(cause);
+  const s_notes = sanitizeForPDF(notes);
+  const footer = sanitizeForPDF("Powered by Imagination & Coffee | Certified 100% Fun");
+
+  // Title
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(18);
+  doc.text(title, pageWidth / 2, 40, { align: "center" });
+
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text(generated, pageWidth / 2, 58, { align: "center" });
+
+  // Box dimensions (centered)
+  const boxWidth = 400;
+  const boxHeight = 350;
+  const boxX = (pageWidth - boxWidth) / 2;
+  const boxY = 80;
+
+  doc.setDrawColor(2, 119, 189);
+  doc.setLineWidth(0.8);
+  doc.rect(boxX, boxY, boxWidth, boxHeight);
+
+  // Text inside box
+  let y = boxY + 20;
+  const leftMargin = boxX + 20;
+
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.text("Age Category:", leftMargin, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(s_age, leftMargin + 120, y);
+
+  y += 22;
+  doc.setFont("helvetica", "bold");
+  doc.text("Status:", leftMargin, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(s_status, leftMargin + 120, y, { maxWidth: boxWidth - 140 });
+
+  y += 22;
+  doc.setFont("helvetica", "bold");
+  doc.text("Cause (inferred):", leftMargin, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(s_cause, leftMargin + 120, y, { maxWidth: boxWidth - 140 });
+
+  y += 22;
+  doc.setFont("helvetica", "bold");
+  doc.text("Notes:", leftMargin, y);
+  doc.setFont("helvetica", "normal");
+  doc.text(s_notes, leftMargin + 120, y, { maxWidth: boxWidth - 140 });
+
+  // Image inside the box
+  if (imageData) {
+    try {
+      const imgW = 200;
+      const imgH = 120;
+      const imgX = boxX + (boxWidth - imgW) / 2;
+      const imgY = boxY + boxHeight - imgH - 40;
+      doc.addImage(imageData, "JPEG", imgX, imgY, imgW, imgH);
+    } catch (err) {
+      console.warn("Could not add image to PDF:", err);
+    }
+  }
+
+  // Signature inside box
+  doc.setFont("helvetica", "italic");
+  doc.text("Dr. Bubbles, Aquatic Fun Specialist", boxX + 20, boxY + boxHeight - 10);
+
+  // Footer
+  doc.setFontSize(9);
+  doc.setTextColor(110);
+  doc.text(footer, pageWidth / 2, 820, { align: "center" });
+
+  try {
+    const pdfBlob = doc.output("blob");
+    const url = URL.createObjectURL(pdfBlob);
+    window.open(url, "_blank");
+  } catch (err) {
+    console.error("Failed to create/open PDF:", err);
+    alert("Could not generate PDF in this browser.");
+  }
+}
