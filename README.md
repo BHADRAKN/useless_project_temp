@@ -41,12 +41,15 @@ Languages used -
 
 
 # Screenshots (Add at least 3)
+
 ![Screenshot1](Add screenshot 1 here with proper name)
 *Add caption explaining what this shows*
+<img width="1776" height="1004" alt="Screenshot 2025-08-09 163839" src="https://github.com/user-attachments/assets/80b80890-43a0-4b79-bce8-d0217d5cfb7c" />
 
-![Screenshot2](Add screenshot 2 here with proper name)
+![Screenshot2](Add screen<img width="1919" height="1079" alt="Screenshot 2025-08-09 163908" src="https://github.com/user-attachments/assets/231d8576-e5db-4f08-a385-1e07fc6a1848" />
+shot 2 here with proper name)
 *Add caption explaining what this shows*
-![Uploading Screenshot 2025-08-09 163839.png…]()
+
 
 
 ![Final](Add photo of final product here)
@@ -55,7 +58,7 @@ Languages used -
 
 ### Project Demo
 # Video
-Uploading 20250809-1106-30.4943283.mp4…
+
 [Add your demo video link here]
 *Explain what the video demonstrates*
 
