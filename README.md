@@ -1,50 +1,44 @@
 <img width="3188" height="1202" alt="frame (3)" src="https://github.com/user-attachments/assets/517ad8e9-ad22-457d-9538-a9e62d137cd7" />
 
 
-# [Project Name] 🎯
+# [Dr.Bubbles] 🎯
 
 
 ## Basic Details
-### Team Name: [Name]
+### Team Name: [Void Heads]
 
 
 ### Team Members
-- Team Lead: [Name] - [College]
-- Member 2: [Name] - [College]
-- Member 3: [Name] - [College]
+- Member 1: [BHADRA K N] - [GEC PALAKKAD]
+- Member 2: [REMYA C] - [GEC PALAKKAD]
 
 ### Project Description
-[2-3 lines about what your project does]
+Dr.Bubbles is a lighthearted web app that creates a playful “health report” for a fish.
+Upload any image, fill in details, and get a fun, themed PDF certificate.
+Perfect for jokes, gifts, or just making someone smile.
 
 ### The Problem (that doesn't exist)
-[What ridiculous problem are you solving?]
+People around the world are suffering from a tragic lack of official fish health paperwork.
+How can anyone trust that your goldfish is in peak condition without a certified, signed document from Dr. Bubbles?
 
 ### The Solution (that nobody asked for)
-[How are you solving it? Keep it fun!]
+With the power of pixels, PDFs, and pure silliness, our app lets you upload a fish photo, add some “medical” notes, and instantly receive an official Fish Health Fun Certificate—signed by the illustrious Dr. Bubbles.
+It’s unnecessary, over-the-top, and exactly what the world didn’t know it needed.
 
 ## Technical Details
 ### Technologies/Components Used
 For Software:
-- [Languages used]
-- [Frameworks used]
-- [Libraries used]
-- [Tools used]
+Languages used - 
+    html
+    css
+    javascript
 
-For Hardware:
-- [List main components]
-- [List specifications]
-- [List tools required]
 
-### Implementation
-For Software:
-# Installation
-[commands]
+
 
 # Run
-[commands]
+[[commands]](https://bhadrakn.github.io/useless_project_temp/)
 
-### Project Documentation
-For Software:
 
 # Screenshots (Add at least 3)
 ![Screenshot1](Add screenshot 1 here with proper name)
@@ -52,45 +46,24 @@ For Software:
 
 ![Screenshot2](Add screenshot 2 here with proper name)
 *Add caption explaining what this shows*
+![Uploading Screenshot 2025-08-09 163839.png…]()
 
-![Screenshot3](Add screenshot 3 here with proper name)
-*Add caption explaining what this shows*
-
-# Diagrams
-![Workflow](Add your workflow/architecture diagram here)
-*Add caption explaining your workflow*
-
-For Hardware:
-
-# Schematic & Circuit
-![Circuit](Add your circuit diagram here)
-*Add caption explaining connections*
-
-![Schematic](Add your schematic diagram here)
-*Add caption explaining the schematic*
-
-# Build Photos
-![Components](Add photo of your components here)
-*List out all components shown*
-
-![Build](Add photos of build process here)
-*Explain the build steps*
 
 ![Final](Add photo of final product here)
 *Explain the final build*
 
+
 ### Project Demo
 # Video
+Uploading 20250809-1106-30.4943283.mp4…
 [Add your demo video link here]
 *Explain what the video demonstrates*
 
-# Additional Demos
-[Add any extra demo materials/links]
 
 ## Team Contributions
-- [Name 1]: [Specific contributions]
-- [Name 2]: [Specific contributions]
-- [Name 3]: [Specific contributions]
+- [BHADRA K N]: [BUILDER]
+- [REMYA C]: [BUILDER]
+  
 
 ---
 Made with ❤️ at TinkerHub Useless Projects 
